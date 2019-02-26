@@ -1,14 +1,15 @@
-#!/usr/bin/env/python
+#!/usr/bin/env python
 
 from __future__ import print_function
 import psycopg2
 import sys
 
-sys.stdout = open('Logs Analysis', 'wt')
+sys.stdout = open('logs_analysis.txt', 'wt')
 
 
 # db connections
 def establish_db_connection():
+    """Establish database, and set cursor, returning a tuple of both to be acted on"""
     DBNAME = "news"
     db = psycopg2.connect(database=DBNAME)
     c = db.cursor()
@@ -16,7 +17,7 @@ def establish_db_connection():
 
 
 def most_popular_articles():
-
+    """Query for top 3 articles all time, print those items"""
     print(
         'Question 1: What are the most popular three articles of all time?\n'
             )
@@ -35,12 +36,16 @@ def most_popular_articles():
     articles = c.fetchall()
     db.close()
 
-    for index, each in enumerate(articles):
-        print("%s. '%s' -- %s views" % (index + 1, each[0], each[1]))
+    for index, (title, views) in enumerate(articles, 1):
+        print("{}. '{}' -- {} views".format(index, title, views))
     return
 
 
 def most_popular_authors():
+    """
+    Query all authors, return all in descending order 
+    from most popular to least popular based on views on articles written
+    """
     print(
         "\n================================================"
             )
@@ -63,19 +68,23 @@ def most_popular_authors():
     authors = c.fetchall()
     db.close()
 
-    for index, each in enumerate(authors):
-        print("%s. %s -- %s views" % (index+1, each[0], each[1]))
+    for index, (author, views) in enumerate(authors, 1):
+        print("{}. {} -- {} views".format(index, author, views))
     return
 
 
 def high_error_days():
+    """
+    Query all all status responses, get % of error, 
+    return those over 1% error rate
+    """
     print(
         "\n================================================"
             )
     print('\n')
     print(
         'Question 3: On which days did more than'
-        ' 1% of requests lead to errors?'
+        ' 1% of requests lead to errors?\n'
             )
 
     db, c = establish_db_connection()
@@ -94,8 +103,8 @@ def high_error_days():
         group by time::date
         order by time::date),
     error_rate as (
-        select requests.day,
-            (errors.count::float / requests.count::float) * 100
+        select to_char(requests.day, 'Mon DD, YYYY'),
+            cast((errors.count::float / requests.count::float) * 100 as decimal(16, 2))
                 as error_percentage
         from requests, errors
         where requests.day = errors.day)
@@ -106,8 +115,8 @@ def high_error_days():
     error_days = c.fetchall()
     db.close()
 
-    for each in error_days:
-        print("- %s -- %s%% errors" % (each[0], each[1]))
+    for (date, error_percentage) in error_days:
+        print("- {} -- {}%% errors".format(date, error_percentage))
     return
 
 
