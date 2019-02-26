@@ -9,7 +9,10 @@ sys.stdout = open('logs_analysis.txt', 'wt')
 
 # db connections
 def establish_db_connection():
-    """Establish database, and set cursor, returning a tuple of both to be acted on"""
+    """
+    Establish database, and set cursor,
+    returning a tuple of both to be acted on
+    """
     DBNAME = "news"
     db = psycopg2.connect(database=DBNAME)
     c = db.cursor()
@@ -43,7 +46,7 @@ def most_popular_articles():
 
 def most_popular_authors():
     """
-    Query all authors, return all in descending order 
+    Query all authors, return all in descending order
     from most popular to least popular based on views on articles written
     """
     print(
@@ -75,7 +78,7 @@ def most_popular_authors():
 
 def high_error_days():
     """
-    Query all all status responses, get % of error, 
+    Query all all status responses, get % of error,
     return those over 1% error rate
     """
     print(
@@ -104,7 +107,10 @@ def high_error_days():
         order by time::date),
     error_rate as (
         select to_char(requests.day, 'Mon DD, YYYY'),
-            cast((errors.count::float / requests.count::float) * 100 as decimal(16, 2))
+            cast(
+                (errors.count::float / requests.count::float) *
+                100 as decimal(16, 2)
+                )
                 as error_percentage
         from requests, errors
         where requests.day = errors.day)
