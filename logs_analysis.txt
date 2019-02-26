@@ -17,4 +17,5 @@ Question 2: Who are the most popular article authors of all time?
 
 
 Question 3: On which days did more than 1% of requests lead to errors?
-- 2016-07-17 -- 2.26268624680273% errors
+
+- Jul 17, 2016 -- 2.26%% errors
